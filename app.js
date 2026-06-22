@@ -15,14 +15,52 @@ fetch("questions.csv")
 
 // --- CSV → objektumok (Biztonságos verzió) ---
 function parseCSV(csv) {
-    const lines = csv.replace(/\r/g, "").trim().split("\n");
-    const headers = lines[0].split(",");
+    // Tisztítsuk meg a Windows-féle \r karakterektől
+    const cleanCsv = csv.replace(/\r/g, "").trim();
+    
+    const lines = [];
+    let currentLine = [];
+    let currentCell = "";
+    let insideQuotes = false;
 
-    return lines.slice(1).map(line => {
-        const cols = line.split(",");
+    // Karakterenként olvassuk be a CSV-t, hogy kezelni tudjuk a macskakörmökön belüli sortöréseket és vesszőket
+    for (let i = 0; i < cleanCsv.length; i++) {
+        const char = cleanCsv[i];
+
+        if (char === '"') {
+            insideQuotes = !insideQuotes; // Ki-be kapcsoljuk a macskaköröm státuszt
+        } else if (char === ',' && !insideQuotes) {
+            // Ha vessző van és NEM macskakörömben vagyunk -> új oszlop
+            currentLine.push(currentCell.trim());
+            currentCell = "";
+        } else if (char === '\n' && !insideQuotes) {
+            // Ha sortörés van és NEM macskakörömben vagyunk -> új sor
+            currentLine.push(currentCell.trim());
+            lines.push(currentLine);
+            currentLine = [];
+            currentCell = "";
+        } else {
+            // Minden más karaktert hozzáfűzünk az aktuális cellához
+            currentCell += char;
+        }
+    }
+    // Az utolsó elem hozzáadása, ha maradt
+    if (currentCell || currentLine.length > 0) {
+        currentLine.push(currentCell.trim());
+        lines.push(currentLine);
+    }
+
+    const headers = lines[0];
+
+    return lines.slice(1).map(cols => {
         let obj = {};
         headers.forEach((h, i) => {
-            obj[h.trim()] = cols[i] ? cols[i].trim() : "";
+            let value = cols[i] ? cols[i].trim() : "";
+            // Ha a tisztítás után még maradtak felesleges macskakörmök a széleken, azokat levágjuk
+            if (value.startsWith('"') && value.endsWith('"')) {
+                value = value.slice(1, -1).trim();
+            }
+            obj[h.trim()] = value;
         });
         obj.errors = 0;
         obj.corrects = 0;
