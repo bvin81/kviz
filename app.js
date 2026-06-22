@@ -13,15 +13,19 @@ fetch("questions.csv")
         showQuestion();
     });
 
-// --- CSV → objektumok ---
+// --- CSV → objektumok (Biztonságos verzió) ---
 function parseCSV(csv) {
-    const lines = csv.trim().split("\n");
+    // A \r karakterek eltávolítása létfontosságú, különben a sor végén lévő válasz betűje hibás lesz!
+    const lines = csv.replace(/\r/g, "").trim().split("\n");
     const headers = lines[0].split(",");
 
     return lines.slice(1).map(line => {
         const cols = line.split(",");
         let obj = {};
-        headers.forEach((h, i) => obj[h] = cols[i]);
+        headers.forEach((h, i) => {
+            // Levágjuk az esetleges felesleges szóközöket a kulcsokról és értékekről is
+            obj[h.trim()] = cols[i] ? cols[i].trim() : "";
+        });
         obj.errors = 0;
         obj.corrects = 0;
         return obj;
@@ -52,10 +56,12 @@ function showQuestion() {
     answersDiv.innerHTML = "";
 
     ["a", "b", "c", "d"].forEach(letter => {
-        if (currentQuestion[letter] !== "0") {
+        // Itt ellenőrizzük, hogy a mező értéke létezik-e, és nem "0" string vagy üres
+        if (currentQuestion[letter] && currentQuestion[letter] !== "0") {
             const btn = document.createElement("button");
             btn.innerText = currentQuestion[letter];
-            btn.onclick = () => checkAnswer(letter);
+            // Mivel a válaszok (A, B, C) nagybetűk a CSV-ben, a gomb betűjét is nagybetűvé alakítjuk az összehasonlításhoz
+            btn.onclick = () => checkAnswer(letter.toUpperCase());
             answersDiv.appendChild(btn);
         }
     });
@@ -65,7 +71,10 @@ function showQuestion() {
 function checkAnswer(letter) {
     const card = document.getElementById("quiz-card");
 
-    if (letter === currentQuestion.Raspuns) {
+    // FIGYELEM: A CSV fejlécében "Raspuns corect" szerepel, ezért így kell hivatkozni rá!
+    const correctLetter = currentQuestion["Raspuns corect"];
+
+    if (letter === correctLetter) {
         correctCount++;
         currentQuestion.corrects++;
         card.classList.add("correct-anim");
@@ -83,14 +92,17 @@ function checkAnswer(letter) {
     document.getElementById("correct").innerText = correctCount;
     document.getElementById("wrong").innerText = wrongCount;
 
-    card.classList.add("fade-out");
-
+    // Adunk egy kis időt a zöld/piros animációnak, mielőtt eltüntetjük a kártyát
     setTimeout(() => {
-        showQuestion();
-        card.classList.remove("fade-out");
-        card.classList.add("fade-in");
-        setTimeout(() => card.classList.remove("fade-in"), 300);
-    }, 300);
+        card.classList.add("fade-out");
+
+        setTimeout(() => {
+            showQuestion();
+            card.classList.remove("fade-out");
+            card.classList.add("fade-in");
+            setTimeout(() => card.classList.remove("fade-in"), 300);
+        }, 300);
+    }, 600);
 }
 
 // --- Progress bar frissítése ---
