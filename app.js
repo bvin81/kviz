@@ -94,7 +94,7 @@ function checkAnswer(clickedButton) {
         currentQuestion.errors++;
         clickedButton.classList.add("btn-wrong");
 
-        // Opcionális: Megmutatjuk a jó választ is, ha a felhasználó hibázott
+        // Megmutatjuk a jó választ is, ha a felhasználó hibázott
         buttons.forEach(btn => {
             if (btn.dataset.letter === correctLetter) {
                 btn.classList.add("btn-correct-highlight");
@@ -108,7 +108,8 @@ function checkAnswer(clickedButton) {
     document.getElementById("correct").innerText = correctCount;
     document.getElementById("wrong").innerText = wrongCount;
 
-    // Kivárjuk a villanást, majd elhalványítjuk a kártyát és jön az új kérdés
+    // MEGNÖVELT IDŐZÍTÉS: 1.5 másodpercig (1500ms) látható marad az eredmény,
+    // mielőtt elindítanánk a kártya eltüntetését.
     setTimeout(() => {
         card.classList.add("fade-out");
 
@@ -118,7 +119,7 @@ function checkAnswer(clickedButton) {
             card.classList.add("fade-in");
             setTimeout(() => card.classList.remove("fade-in"), 300);
         }, 300);
-    }, 800); // 800ms-ig látható a zöld/piros kiemelés
+    }, 1500); 
 }
 
 // --- Progress bar frissítése ---
