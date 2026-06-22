@@ -27,7 +27,7 @@ body {
     padding: 30px;
     border-radius: 18px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-    animation: fadeIn 0.4s ease;
+    transition: opacity 0.3s ease, transform 0.3s ease; /* Finomított átmenet a fade-out/in-hez */
 }
 
 .question {
@@ -100,42 +100,37 @@ body {
     margin-top: 5px;
 }
 
-/* --- Animációk --- */
+/* --- Animációk (Javítva az ütközések ellen) --- */
 .correct-anim {
-    animation: correctFlash 0.5s ease;
+    animation: correctFlash 0.5s ease forwards;
 }
 
 @keyframes correctFlash {
-    0%   { background-color: #4ade80; transform: scale(1); }
-    50%  { background-color: #22c55e; transform: scale(1.03); }
+    0%   { background-color: #ffffff; transform: scale(1); }
+    30%  { background-color: #4ade80; transform: scale(1.02); }
     100% { background-color: #ffffff; transform: scale(1); }
 }
 
 .wrong-anim {
-    animation: wrongShake 0.4s ease;
+    animation: wrongShake 0.4s ease forwards;
 }
 
 @keyframes wrongShake {
-    0%   { transform: translateX(0); }
-    25%  { transform: translateX(-6px); }
-    50%  { transform: translateX(6px); }
-    75%  { transform: translateX(-6px); }
-    100% { transform: translateX(0); }
+    0%   { transform: translateX(0); background-color: #ffffff; }
+    20%  { transform: translateX(-6px); background-color: #fee2e2; }
+    40%  { transform: translateX(6px); background-color: #fee2e2; }
+    60%  { transform: translateX(-4px); background-color: #fee2e2; }
+    80%  { transform: translateX(4px); background-color: #fee2e2; }
+    100% { transform: translateX(0); background-color: #ffffff; }
 }
 
+/* --- Elhalványítás és beúszás osztályai --- */
 .fade-out {
     opacity: 0;
     transform: translateY(10px);
-    transition: 0.3s;
 }
 
 .fade-in {
     opacity: 1;
     transform: translateY(0);
-    transition: 0.3s;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to   { opacity: 1; transform: translateY(0); }
 }
