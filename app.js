@@ -15,7 +15,6 @@ fetch("questions.csv")
 
 // --- CSV → objektumok (Biztonságos verzió) ---
 function parseCSV(csv) {
-    // A \r karakterek eltávolítása létfontosságú, különben a sor végén lévő válasz betűje hibás lesz!
     const lines = csv.replace(/\r/g, "").trim().split("\n");
     const headers = lines[0].split(",");
 
@@ -23,7 +22,6 @@ function parseCSV(csv) {
         const cols = line.split(",");
         let obj = {};
         headers.forEach((h, i) => {
-            // Levágjuk az esetleges felesleges szóközöket a kulcsokról és értékekről is
             obj[h.trim()] = cols[i] ? cols[i].trim() : "";
         });
         obj.errors = 0;
@@ -55,35 +53,53 @@ function showQuestion() {
     const answersDiv = document.getElementById("answers");
     answersDiv.innerHTML = "";
 
-    ["a", "b", "c", "d"].forEach(letter => {
-        // Itt ellenőrizzük, hogy a mező értéke létezik-e, és nem "0" string vagy üres
-        if (currentQuestion[letter] && currentQuestion[letter] !== "0") {
-            const btn = document.createElement("button");
-            btn.innerText = currentQuestion[letter];
-            // Mivel a válaszok (A, B, C) nagybetűk a CSV-ben, a gomb betűjét is nagybetűvé alakítjuk az összehasonlításhoz
-            btn.onclick = () => checkAnswer(letter.toUpperCase());
-            answersDiv.appendChild(btn);
-        }
+    // Összegyűjtjük az érvényes válaszlehetőségeket
+    let validLetters = ["a", "b", "c", "d"].filter(letter => {
+        return currentQuestion[letter] && currentQuestion[letter] !== "0";
+    });
+
+    // Válaszlehetőségek sorrendjének véletlenszerű keverése (Fisher-Yates shuffle)
+    for (let i = validLetters.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [validLetters[i], validLetters[j]] = [validLetters[j], validLetters[i]];
+    }
+
+    // Gombok létrehozása a megkevert sorrend alapján
+    validLetters.forEach(letter => {
+        const btn = document.createElement("button");
+        btn.innerText = currentQuestion[letter];
+        // Eltároljuk a betűjelet a gombban az ellenőrzéshez
+        btn.dataset.letter = letter.toUpperCase();
+        btn.onclick = (e) => checkAnswer(e.target);
+        answersDiv.appendChild(btn);
     });
 }
 
 // --- Válasz ellenőrzése ---
-function checkAnswer(letter) {
-    const card = document.getElementById("quiz-card");
+function checkAnswer(clickedButton) {
+    // Letiltjuk a többi gombra kattintást, amíg tart az animáció
+    const buttons = document.querySelectorAll("#answers button");
+    buttons.forEach(btn => btn.style.pointerEvents = "none");
 
-    // FIGYELEM: A CSV fejlécében "Raspuns corect" szerepel, ezért így kell hivatkozni rá!
+    const card = document.getElementById("quiz-card");
+    const chosenLetter = clickedButton.dataset.letter;
     const correctLetter = currentQuestion["Raspuns corect"];
 
-    if (letter === correctLetter) {
+    if (chosenLetter === correctLetter) {
         correctCount++;
         currentQuestion.corrects++;
-        card.classList.add("correct-anim");
-        setTimeout(() => card.classList.remove("correct-anim"), 500);
+        clickedButton.classList.add("btn-correct");
     } else {
         wrongCount++;
         currentQuestion.errors++;
-        card.classList.add("wrong-anim");
-        setTimeout(() => card.classList.remove("wrong-anim"), 400);
+        clickedButton.classList.add("btn-wrong");
+
+        // Opcionális: Megmutatjuk a jó választ is, ha a felhasználó hibázott
+        buttons.forEach(btn => {
+            if (btn.dataset.letter === correctLetter) {
+                btn.classList.add("btn-correct-highlight");
+            }
+        });
     }
 
     totalAnswered++;
@@ -92,7 +108,7 @@ function checkAnswer(letter) {
     document.getElementById("correct").innerText = correctCount;
     document.getElementById("wrong").innerText = wrongCount;
 
-    // Adunk egy kis időt a zöld/piros animációnak, mielőtt eltüntetjük a kártyát
+    // Kivárjuk a villanást, majd elhalványítjuk a kártyát és jön az új kérdés
     setTimeout(() => {
         card.classList.add("fade-out");
 
@@ -102,7 +118,7 @@ function checkAnswer(letter) {
             card.classList.add("fade-in");
             setTimeout(() => card.classList.remove("fade-in"), 300);
         }, 300);
-    }, 600);
+    }, 800); // 800ms-ig látható a zöld/piros kiemelés
 }
 
 // --- Progress bar frissítése ---
