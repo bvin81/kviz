@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <title>Pszichológia Kvíz</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+
+    <h1 class="title">Pszichológia Kvíz</h1>
+
+    <div class="card" id="quiz-card">
+        <div id="question" class="question"></div>
+        <div id="answers" class="answers"></div>
+    </div>
+
+    <div class="progress-container">
+        <div id="progress-bar"></div>
+    </div>
+
+    <div class="stats">
+        <div class="stat-box">
+            <span class="stat-label">Helyes</span>
+            <span id="correct" class="stat-value">0</span>
+        </div>
+        <div class="stat-box">
+            <span class="stat-label">Helytelen</span>
+            <span id="wrong" class="stat-value">0</span>
+        </div>
+    </div>
+
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

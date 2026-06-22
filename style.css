@@ -1,0 +1,141 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap');
+
+body {
+    font-family: 'Inter', sans-serif;
+    background: linear-gradient(135deg, #4f46e5, #6d28d9);
+    margin: 0;
+    padding: 0;
+    color: #fff;
+}
+
+.container {
+    max-width: 700px;
+    margin: 40px auto;
+    padding: 20px;
+}
+
+.title {
+    text-align: center;
+    font-size: 42px;
+    font-weight: 600;
+    margin-bottom: 30px;
+}
+
+.card {
+    background: #ffffff;
+    color: #333;
+    padding: 30px;
+    border-radius: 18px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    animation: fadeIn 0.4s ease;
+}
+
+.question {
+    font-size: 22px;
+    font-weight: 600;
+    margin-bottom: 25px;
+}
+
+.answers button {
+    width: 100%;
+    padding: 14px;
+    margin: 10px 0;
+    font-size: 18px;
+    border: none;
+    border-radius: 12px;
+    background: #4f46e5;
+    color: white;
+    cursor: pointer;
+    transition: 0.25s;
+}
+
+.answers button:hover {
+    background: #4338ca;
+    transform: translateY(-2px);
+}
+
+/* --- Progress bar --- */
+.progress-container {
+    width: 100%;
+    height: 14px;
+    background: rgba(255,255,255,0.25);
+    border-radius: 10px;
+    margin: 25px 0;
+    overflow: hidden;
+    backdrop-filter: blur(4px);
+}
+
+#progress-bar {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #22c55e, #16a34a);
+    border-radius: 10px;
+    transition: width 0.4s ease;
+}
+
+/* --- Stats --- */
+.stats {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 25px;
+}
+
+.stat-box {
+    background: rgba(255,255,255,0.2);
+    padding: 15px 25px;
+    border-radius: 12px;
+    text-align: center;
+    backdrop-filter: blur(6px);
+}
+
+.stat-label {
+    display: block;
+    font-size: 16px;
+    opacity: 0.8;
+}
+
+.stat-value {
+    font-size: 28px;
+    font-weight: 600;
+    margin-top: 5px;
+}
+
+/* --- Animációk --- */
+.correct-anim {
+    animation: correctFlash 0.5s ease;
+}
+
+@keyframes correctFlash {
+    0%   { background-color: #4ade80; transform: scale(1); }
+    50%  { background-color: #22c55e; transform: scale(1.03); }
+    100% { background-color: #ffffff; transform: scale(1); }
+}
+
+.wrong-anim {
+    animation: wrongShake 0.4s ease;
+}
+
+@keyframes wrongShake {
+    0%   { transform: translateX(0); }
+    25%  { transform: translateX(-6px); }
+    50%  { transform: translateX(6px); }
+    75%  { transform: translateX(-6px); }
+    100% { transform: translateX(0); }
+}
+
+.fade-out {
+    opacity: 0;
+    transform: translateY(10px);
+    transition: 0.3s;
+}
+
+.fade-in {
+    opacity: 1;
+    transform: translateY(0);
+    transition: 0.3s;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
